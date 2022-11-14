@@ -24,7 +24,7 @@ inventory = {
 
 # Path parameter(s) example
 @app.get("/get-item/{item_id}")  # Endpoint
-def get_item(item_id: int = Path(None, description="The ID of the item you'd like to view.")):
+def get_item(item_id: int = Path(None, description="The ID of the item you'd like to view.", gt=0, lt=2)):
     return inventory[item_id]
 
 # Query parameter(s) example
@@ -42,12 +42,13 @@ def get_brand(item_id: int, name: Optional[str] = None):
         return inventory[item_id]
     return {"Data": "Not Found"}
 
-
 # Request body parameter(s) example
 @app.post("/create-item/{item_id}")  # Endpoint
 def create_item(item_id: int, item: Item):
     if item_id in inventory:
         return {"Error": "Item ID already exists."}
     
-    inventory[item_id] = {"name": item.name, "price": item.price, "brand": item.brand}
-    return inventory[item_id]
+    # inventory[item_id] = {"name": item.name, "price": item.price, "brand": item.brand}
+    # FastAPI converts Item object automatically into JSON since it inherits from BaseModel
+    inventory[item_id] = item
+    return item
