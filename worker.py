@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, HTTPException
 from typing import Optional
 from pydantic import BaseModel
 
@@ -14,13 +14,7 @@ class Item(BaseModel):
     brand: Optional[str] = None
 
 
-inventory = {
-    1: {
-        "name": "Milk",
-        "price": 3.99,
-        "brand": "Regular"
-    }
-}
+inventory = {}
 
 # Path parameter(s) example
 @app.get("/get-item/{item_id}")  # Endpoint
@@ -33,22 +27,25 @@ def get_name(uid: int, name: Optional[str] = None):
     for item_id in inventory:
         if inventory[item_id]["name"] == name:
             return inventory[item_id]
-    return {"Data": "Not Found"}
+    raise HTTPException(status_code=404, detail="Item name not found.")
 
 # Path & Query parameter(s) example
 @app.get("/get-by-brand/{item_id}")  # Endpoint
 def get_brand(item_id: int, name: Optional[str] = None):
     if inventory[item_id]["name"] == name:
         return inventory[item_id]
-    return {"Data": "Not Found"}
+    raise HTTPException(status_code=404, detail="Item brand not found.")
 
 # Request body parameter(s) example
 @app.post("/create-item/{item_id}")  # Endpoint
 def create_item(item_id: int, item: Item):
     if item_id in inventory:
-        return {"Error": "Item ID already exists."}
+        raise HTTPException(status_code=400, detail="Item ID already exists.")
     
     # inventory[item_id] = {"name": item.name, "price": item.price, "brand": item.brand}
     # FastAPI converts Item object automatically into JSON since it inherits from BaseModel
     inventory[item_id] = item
-    return item
+    return inventory[item_id]
+
+# PUT
+# DELETE
