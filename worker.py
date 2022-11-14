@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Path
 from typing import Optional
-from pydanctic import BaseModel
+from pydantic import BaseModel
 
 # Inventory Management System Example
 # https://www.youtube.com/watch?v=-ykeT6kk4bk
@@ -46,4 +46,8 @@ def get_brand(item_id: int, name: Optional[str] = None):
 # Request body parameter(s) example
 @app.post("/create-item/{item_id}")  # Endpoint
 def create_item(item_id: int, item: Item):
-    return {}
+    if item_id in inventory:
+        return {"Error": "Item ID already exists."}
+    
+    inventory[item_id] = {"name": item.name, "price": item.price, "brand": item.brand}
+    return inventory[item_id]
